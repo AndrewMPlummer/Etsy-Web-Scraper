@@ -1,0 +1,114 @@
+import bs4
+import requests
+from urllib.request import urlopen as ureq
+from bs4 import BeautifulSoup as soup 
+from selenium import webdriver
+
+        
+def find_elements(page_number, location =  "v2-listing-card__info"):
+
+        ''' This function finds the HTML class associated with the product link. It then clicks on every link with that class, scrapes the product data,
+        and then saves that data into a CSV file. '''
+
+        # Here is where you enter your driver.
+
+        path = #r'C:\\Users\\andre\\OneDrive\\Desktop\\Chromedriver' 
+
+        driver = webdriver.Chrome(executable_path = path)
+
+        page = "https://www.etsy.com/ca/c/jewelry-and-accessories?ref=pagination&page={}".format(page_number)
+
+        driver.get(page)
+        
+
+        filename = "jewelry-and-accessories.csv" # Create a CSV file to store your data.
+
+        
+        
+        f = open(filename, "w") # open the file and write to it
+
+        headers = "item_name, price, sales, company_name, rating\n" # These are the headers for your csv file.
+
+        f.write(headers) 
+
+        elements = driver.find_elements_by_class_name(location)
+
+        for i in range(len(elements)):
+
+                try:
+                        elements[i].click() # Click on the item.
+
+                except:
+
+                        if i != len(elements) - 1:
+
+                                i += 1
+
+                                elements[i].click()
+
+                        else:
+
+                                pass 
+
+                driver.switch_to.window(driver.window_handles[-1])
+
+                url = driver.current_url
+                uclient = ureq(url) # This opens a connection, grabs the webpage, and downloads it.
+                page_html = uclient.read() # This dumps the html into the page_html variable
+                uclient.close() # Closes the file. 
+                page_soup = soup(page_html, "html.parser")
+
+                name_holder = page_soup.findAll("div", {"data-component":"listing-page-title-component"})[0]
+
+                item_name = name_holder.text.strip()
+
+                price_holder = page_soup.findAll("p", {"class": "wt-text-title-03 wt-mr-xs-2"})
+
+                item_price = price_holder[0].text.strip().lstrip("Price:\n").strip().lstrip("CA$").rstrip("+")
+
+                if page_soup.findAll("span", {"class": "wt-text-caption-01"})[0].text.rstrip(" sales").replace(",","").isdigit():
+
+                        num_sales = page_soup.findAll("span", {"class": "wt-text-caption-01"})[0].text.rstrip(" sales")
+
+                else:
+
+                        num_sales = page_soup.findAll("span", {"class": "wt-text-caption-01"})[1].text.rstrip(" sales").replace(",","")
+
+	
+                item_brand = page_soup.findAll("span", {"aria-hidden": "true"})[3].text.strip()
+
+                item_rating = page_soup.findAll("span", {"class":"wt-screen-reader-only"})[4].text.replace(" out of 5 stars", "")
+
+                print("==============================================")
+                print("The name of this item is: {}".format(item_name))
+                print("\n")
+                print("The price of this item is: {}".format(item_price))
+                print("\n")
+                print("This item has had the following number of sales: {}".format(num_sales))
+                print("\n")
+                print("The brand for this item is: {}".format(item_brand))
+                print("\n")
+                print("This item has the following rating: {}".format(item_rating))
+                print("\n\n")
+
+
+                f.write(item_name.replace(",", "|") + "," + item_price.replace(",","") + "," + num_sales.replace(",","") + "," + item_brand.replace(",","") + "," + item_rating.replace(",","") + "\n")
+
+                driver.close()
+
+                driver.switch_to.window(driver.window_handles[-1])
+
+        driver.quit()
+
+        f.close()
+
+def next_page(num_pages = 10):
+
+        ''' This function gives us the number of pages to scrape. ''' 
+
+        for k in range(1, num_pages + 1):
+
+                find_elements(page_number = k)
+
+
+
