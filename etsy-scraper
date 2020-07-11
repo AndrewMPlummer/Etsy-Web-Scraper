@@ -21,7 +21,7 @@ def find_elements(page_number, location =  "v2-listing-card__info"):
         driver.get(page)
         
 
-        filename = "jewelry-and-accessories.csv" # Create a CSV file to store your data.
+        filename = "jewelry-and-accessories{}.csv".format(page_number) # Create a CSV file to store your data.
 
         
         
