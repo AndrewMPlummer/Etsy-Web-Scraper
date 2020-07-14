@@ -7,12 +7,7 @@ from selenium import webdriver
         
 def find_elements(page_number, location =  "v2-listing-card__info"):
 
-        ''' This function finds the HTML class associated with the product link. It then clicks on every link with that class, scrapes the product data,
-        and then saves that data into a CSV file. '''
-
-        # Here is where you enter your driver.
-
-        path = #r'C:\\Users\\andre\\OneDrive\\Desktop\\Chromedriver' 
+        path = r'C:\\Users\\andre\\OneDrive\\Desktop\\Chromedriver'
 
         driver = webdriver.Chrome(executable_path = path)
 
@@ -20,17 +15,19 @@ def find_elements(page_number, location =  "v2-listing-card__info"):
 
         driver.get(page)
         
-
-        filename = "jewelry-and-accessories{}.csv".format(page_number) # Create a CSV file to store your data.
-
-        
-        
-        f = open(filename, "w") # open the file and write to it
-
         headers = "item_name, price, sales, company_name, rating\n" # These are the headers for your csv file.
+        
+        filename = "accessories.csv" # Create a CSV file to store your data.
 
-        f.write(headers) 
+        if page_number == 1:
+        
+                f = open(filename, "w") # open the file and write to it
+                f.write(headers)
 
+        elif page_number > 1:
+
+                f = open(filename, "a")
+         
         elements = driver.find_elements_by_class_name(location)
 
         for i in range(len(elements)):
@@ -103,8 +100,6 @@ def find_elements(page_number, location =  "v2-listing-card__info"):
         f.close()
 
 def next_page(num_pages = 10):
-
-        ''' This function gives us the number of pages to scrape. ''' 
 
         for k in range(1, num_pages + 1):
 
